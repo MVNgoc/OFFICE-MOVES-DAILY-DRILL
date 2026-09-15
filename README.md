@@ -54,7 +54,7 @@ src/
 
 ## Tài nguyên pixel art
 
-Sprite gốc nằm ở `assets-src/`, chia làm hai đợt:
+Sprite gốc nằm ở `assets-src/`, chia làm nhiều đợt:
 
 **Đợt 1 — `area-sheet`, `character-asset`, `exercise-icon-row`, `spin-button-asset`,
 `star-sheet`** (1408×768, canvas gốc **120×65**). Nền ca-rô bị *vẽ chết* vào ảnh
@@ -115,12 +115,57 @@ khung 2 của *Squat ghế* có thêm một người đứng dính vào qua vạ
 theo khe hở ở cột 27, và hai khung dùng **chung cửa sổ trục X** để cái ghế không
 xê dịch giữa hai khung.
 
+**Đợt 6 — 8 ảnh sửa tư thế** (`wall-pushup`, `seated-knee-tuck`, `wall-sit`,
+`standing-hamstring`, `dead-bug`, `mountain-climber`, `neck-shoulder-stretch`,
+`wrist-forearm-stretch`). Một lần rà soát cho thấy các sprite này vẽ **sai động
+tác**, không chỉ sai kỹ thuật: khung 2 của hít đất tường vẽ thân gần như nằm
+ngang (thành hít đất sàn), gập gối trên ghế vẽ hai tay ôm ống chân trong khi mô
+tả yêu cầu bám mép ghế, tựa tường giữ đùi chưa hạ tới mức đùi song song sàn,
+giãn gân kheo đứng vẽ gối gập trong khi mô tả yêu cầu chân thẳng, và giãn cổ tay
+thì không có nhân vật — chỉ là mấy cánh tay rời với bàn tay vỡ hình.
+
+Ba quy tắc bắt buộc khi ghép một cặp khung. Vi phạm cái nào cũng làm nhân vật
+hoặc bối cảnh giật mỗi lần đảo khung:
+
+1. **Cắt hai khung bằng cùng một khung cắt** — lấy hợp của bbox hai khung, không
+   bao giờ trim riêng từng khung. Trim riêng chính là nguyên nhân gốc của lỗi giật.
+2. **Căn lề theo mặt trong của đạo cụ mà nhân vật tựa vào.** Gemini vẽ bức tường
+   lệch 24px giữa hai khung ở `wall-pushup` và 35px ở `wall-sit`; căn theo tường
+   thì nhân vật mới đứng đúng chỗ.
+3. **Hàng dưới cùng — đường sàn — phải giống hệt nhau ở cả hai khung**, màu
+   `#1A1412`, kéo hết chiều ngang. Trước đó đường sàn được vẽ rộng bằng nhân vật
+   nên nó phình/co mỗi 520ms; nặng nhất là `calf-raise` (6% → 100% bề ngang).
+   Đã chuẩn hoá cho **cả 28 bài**, không riêng 8 bài vẽ lại.
+
+**Đợt 7 — `background-attachment.png`** (2752×1536 → `bg-office.png` 480×268, 48
+màu, 14.7 KB). Tranh nền phòng làm việc thay cho gradient nâu cũ, vốn trùng tông
+với khung gỗ tủ arcade nên làm tủ chìm vào nền.
+
+Bố cục phải **để trống phần giữa**: tủ arcade (`max-w-[1180px]`) che 62% bề ngang
+trên desktop, còn trên mobile `background-size: cover` cắt chỉ còn ~26% ở chính
+giữa. Mọi đồ đạc vì thế dồn về hai rìa trái/phải.
+
+Ở đợt này `Image.quantize` median-cut **không dùng được**: nó chia bảng màu theo
+thể tích nên mảng tường lớn nuốt mất chậu cây xanh và ánh đèn vàng — hỏng ở cả
+24/32/48/96 màu. Thay bằng **k-means chạy trên tập màu duy nhất với trọng số
+`sqrt(count)`** thay vì `count`; căn bậc hai làm phẳng chênh lệch nên màu hiếm
+vẫn giành được một ô trong bảng màu. (libimagequant không được biên dịch sẵn
+trong Pillow, và máy không có `pngquant`.)
+
+Một thói quen của Gemini cần nhớ cho các đợt sau: nó hay chèn thêm một **vệt lấp
+lánh ✦** màu sáng vào góc dưới phải ảnh. Vệt này xuất hiện ở hầu hết ảnh đợt 6 và
+cả ảnh nền. Cách xử lý: lọc bỏ các thành phần liên thông nhỏ và rời rạc (với
+sprite), hoặc vá lại theo median từng hàng để giữ đúng dải chuyển sắc dọc (với
+ảnh nền).
+
 Kết quả trong `public/assets/`:
 
 - `sprites/` — 70 sprite riêng lẻ: **28 bài tập × 2 khung**, mascot × 3 khung,
   nhân vật banner × 2 khung, 5 icon khu vực, nút SPIN, mũi tên, 2 sao
 - `area-sheet.png`, `star-sheet.png`, `spin-button.png`, `exercise-icon-row.png`,
   `character-asset.png` — bản tách nền của các sheet đợt 1 (giữ để tham chiếu)
+- `bg-office.png` — tranh nền phòng làm việc 480×268, gắn vào `body` bằng
+  `background-size: cover` + `image-rendering: pixelated`
 - `ui-mockup.png` — ảnh giao diện tham chiếu
 
 Mọi ảnh đều render với `image-rendering: pixelated` và scale bằng bội số nguyên.
