@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 
 /** A pixel-art image scaled by an integer factor so it never blurs. */
@@ -35,11 +36,14 @@ export function Sprite({
 export function Section({
   title,
   icon,
+  info,
   children,
   className = '',
 }: {
   title: string
   icon?: ReactNode
+  /** Optional explainer rendered beside the title. */
+  info?: ReactNode
   children: ReactNode
   className?: string
 }) {
@@ -50,6 +54,7 @@ export function Section({
         <h2 className="font-vn text-sm leading-none tracking-wide text-cream-100 text-pixel-shadow-sm sm:text-base">
           {title}
         </h2>
+        {info}
       </header>
       <div className="panel-cream mt-1 flex-1 px-2 py-2 sm:px-3 sm:py-3">{children}</div>
     </section>
@@ -81,5 +86,71 @@ export function Stars({
         />
       ))}
     </div>
+  )
+}
+
+/** How long each animation frame is held, in milliseconds. */
+const FRAME_MS = 520
+
+/**
+ * Cycles a list of pixel-art frames. Every frame is rendered and only its
+ * visibility is toggled, so later frames are already decoded when the first
+ * swap happens — otherwise the sprite blinks on its first cycle.
+ *
+ * `sequence` indexes into `frames`, which lets a three-frame sprite play
+ * neutral → left → neutral → right from only three images.
+ */
+export function FrameAnimation({
+  frames,
+  sequence,
+  alt = '',
+  playing = true,
+  frameMs = FRAME_MS,
+  className = '',
+}: {
+  frames: readonly string[]
+  sequence?: readonly number[]
+  alt?: string
+  playing?: boolean
+  frameMs?: number
+  className?: string
+}) {
+  const steps = sequence ?? frames.map((_, i) => i)
+  const stepCount = steps.length
+  const firstFrame = frames[0]
+  const [step, setStep] = useState(0)
+  const [lastKey, setLastKey] = useState(firstFrame)
+
+  // A different sprite restarts the loop from its rest position.
+  if (lastKey !== firstFrame) {
+    setLastKey(firstFrame)
+    setStep(0)
+  }
+
+  useEffect(() => {
+    if (!playing || stepCount < 2) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const id = window.setInterval(() => setStep((s) => (s + 1) % stepCount), frameMs)
+    return () => window.clearInterval(id)
+  }, [playing, frameMs, stepCount, firstFrame])
+
+  const shown = playing ? steps[step] : steps[0]
+
+  return (
+    <span className={`relative block ${className}`} role={alt ? 'img' : undefined} aria-label={alt || undefined}>
+      {frames.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          hidden={i !== shown}
+          className="absolute inset-0 h-full w-full object-contain select-none"
+          style={{ imageRendering: 'pixelated' }}
+        />
+      ))}
+    </span>
   )
 }

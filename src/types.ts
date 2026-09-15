@@ -1,17 +1,22 @@
 export type Category = 'upper' | 'lower' | 'core' | 'full' | 'stretch'
 export type Difficulty = 1 | 2 | 3
 export type Unit = 'seconds' | 'reps'
-export type IconKey = 'squat' | 'pushup' | 'crunch' | 'situp' | 'lunge' | 'stretch' | 'jumping'
 
 export interface Exercise {
   id: string
   name: string
   category: Category
-  icon: IconKey
   unit: Unit
   /** Seconds when `unit` is "seconds", repetitions when `unit` is "reps". */
   durationOptions: number[]
   difficulty: Difficulty
+  /**
+   * For `seconds` exercises: whether those seconds are spent holding one pose
+   * (plank, stretches) or repeating a movement (jumping jacks, high knees).
+   */
+  timedAs?: 'hold' | 'moving'
+  /** The amount applies to each side separately (side plank, most stretches). */
+  perSide?: boolean
   description: string
   tips: string
 }

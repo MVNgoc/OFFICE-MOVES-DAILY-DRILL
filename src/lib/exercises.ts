@@ -1,5 +1,5 @@
 import raw from '../data/exercises.json'
-import type { Category, Difficulty, Exercise, Filters, IconKey, TimeBudget } from '../types'
+import type { Category, Difficulty, Exercise, Filters, TimeBudget } from '../types'
 
 export const EXERCISES = raw as Exercise[]
 
@@ -21,17 +21,28 @@ export const AREA_LABEL: Record<Category, string> = {
 
 export const TIME_BUDGETS: TimeBudget[] = [3, 5, 10]
 
-export const ICON_SRC: Record<IconKey, string> = {
-  squat: '/assets/sprites/ex-squat.png',
-  pushup: '/assets/sprites/ex-pushup.png',
-  crunch: '/assets/sprites/ex-crunch.png',
-  situp: '/assets/sprites/ex-situp.png',
-  lunge: '/assets/sprites/ex-lunge.png',
-  stretch: '/assets/sprites/ex-stretch.png',
-  jumping: '/assets/sprites/ex-jumping.png',
+/**
+ * Each exercise has its own two-frame animation, keyed by id. Sharing one icon
+ * across many exercises was showing a push-up for side planks and a side bend
+ * for every stretch.
+ */
+export function exerciseFrames(exercise: Exercise): [string, string] {
+  return [`/assets/sprites/ex-${exercise.id}-1.png`, `/assets/sprites/ex-${exercise.id}-2.png`]
 }
 
-export const DOCK_ICONS: IconKey[] = ['squat', 'pushup', 'crunch', 'situp', 'lunge', 'jumping', 'stretch']
+/** The mascot's idle: upright, lean one way, upright, lean the other. */
+export const MASCOT_FRAMES = [
+  '/assets/sprites/character-1.png',
+  '/assets/sprites/character-2.png',
+  '/assets/sprites/character-3.png',
+] as const
+export const MASCOT_SEQUENCE = [0, 1, 0, 2] as const
+
+/** The pair flanking the banner title. */
+export const HERO_FRAMES = [
+  '/assets/sprites/hero-idle-1.png',
+  '/assets/sprites/hero-idle-2.png',
+] as const
 
 /**
  * Which duration option to use for a given session length. A 3-minute drill
@@ -45,7 +56,8 @@ export function pickDuration(exercise: Exercise, time: TimeBudget): number {
 }
 
 export function formatAmount(exercise: Exercise, amount: number): string {
-  return exercise.unit === 'seconds' ? `${amount} GIÂY` : `${amount} LẦN`
+  const base = exercise.unit === 'seconds' ? `${amount} GIÂY` : `${amount} LẦN`
+  return exercise.perSide ? `${base}/BÊN` : base
 }
 
 /**

@@ -1,5 +1,6 @@
 import type { StreakState } from '../types'
-import { Section, Sprite } from './Pixel'
+import { FrameAnimation, Section } from './Pixel'
+import { MASCOT_FRAMES, MASCOT_SEQUENCE } from '../lib/exercises'
 
 interface Props {
   streak: StreakState
@@ -22,10 +23,11 @@ export function StreakPanel({ streak, doneToday, onMarkDone }: Props) {
       <div className="pixel-in relative flex min-h-[110px] flex-1 items-end justify-center overflow-hidden bg-linear-to-b from-screen-400 to-screen-700 p-2 sm:min-h-[150px]">
         {/* Floor line */}
         <div className="absolute inset-x-0 bottom-0 h-3 bg-wood-700" aria-hidden="true" />
-        <Sprite
-          src="/assets/sprites/character.png"
+        <FrameAnimation
+          frames={MASCOT_FRAMES}
+          sequence={MASCOT_SEQUENCE}
           alt="Nhân vật pixel đang giãn cơ"
-          className="anim-sway relative h-24 w-auto sprite-shadow sm:h-32"
+          className="relative h-[124px] w-[70px] sprite-shadow"
         />
       </div>
 

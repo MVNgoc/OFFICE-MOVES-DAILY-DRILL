@@ -1,11 +1,12 @@
-import { Sprite } from './Pixel'
+import { FrameAnimation } from './Pixel'
+import { HERO_FRAMES } from '../lib/exercises'
 
 export function Banner({ muted, onToggleMute }: { muted: boolean; onToggleMute: () => void }) {
   return (
     <header className="pixel-out relative flex items-center justify-between gap-2 bg-linear-to-b from-screen-400 to-screen-700 px-2 py-2 sm:gap-4 sm:px-4 sm:py-3">
-      <Sprite
-        src="/assets/sprites/hero-idle.png"
-        className="anim-bob hidden h-10 w-auto shrink-0 sprite-shadow sm:block md:h-14"
+      <FrameAnimation
+        frames={HERO_FRAMES}
+        className="hidden h-[59px] w-[48px] shrink-0 sprite-shadow sm:block"
       />
 
       <h1 className="font-pixel flex-1 text-center text-[11px] leading-[1.6] tracking-tight text-cream-100 text-pixel-shadow sm:text-base md:text-xl lg:text-2xl">
@@ -14,10 +15,10 @@ export function Banner({ muted, onToggleMute }: { muted: boolean; onToggleMute: 
         <span className="sm:ml-3">DAILY DRILL</span>
       </h1>
 
-      <Sprite
-        src="/assets/sprites/hero-idle.png"
-        className="anim-bob hidden h-10 w-auto shrink-0 -scale-x-100 sprite-shadow sm:block md:h-14"
-        style={{ animationDelay: '0.8s' }}
+      <FrameAnimation
+        frames={HERO_FRAMES}
+        frameMs={640}
+        className="hidden h-[59px] w-[48px] shrink-0 -scale-x-100 sprite-shadow sm:block"
       />
 
       <button

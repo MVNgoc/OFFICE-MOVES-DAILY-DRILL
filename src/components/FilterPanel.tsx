@@ -1,6 +1,7 @@
 import type { Category, Difficulty, Filters, TimeBudget } from '../types'
 import { AREAS, TIME_BUDGETS } from '../lib/exercises'
 import { Section, Sprite } from './Pixel'
+import { InfoTip } from './InfoTip'
 import { sfx } from '../lib/audio'
 
 interface Props {
@@ -89,7 +90,27 @@ export function FilterPanel({ filters, onChange, matchCount }: Props) {
       </Section>
 
       {/* ---------- Difficulty ceiling ---------- */}
-      <Section title="ĐỘ KHÓ" icon={<span aria-hidden="true">⭐</span>}>
+      <Section
+        title="ĐỘ KHÓ"
+        icon={<span aria-hidden="true">⭐</span>}
+        info={
+          <InfoTip label="Độ khó nghĩa là gì?">
+            <p className="font-vn text-xs leading-none tracking-widest text-ink/60 sm:text-sm">ĐỘ KHÓ LÀ GÌ?</p>
+            <p className="font-term mt-1.5 text-base leading-snug text-ink sm:text-lg">
+              Đây là mức <b>tối đa</b>, không phải mức chính xác. Chọn 2 sao nghĩa là lấy cả bài 1
+              sao lẫn 2 sao.
+            </p>
+            <ul className="font-term mt-2 border-t-2 border-dashed border-ink/20 pt-1.5 text-base leading-snug text-ink/75 sm:text-lg">
+              <li>· 1 sao — làm ngay tại bàn, không đổ mồ hôi</li>
+              <li>· 2 sao — cần chút sức, hơi thở gấp</li>
+              <li>· 3 sao — nặng, nên khởi động trước</li>
+            </ul>
+            <p className="font-term mt-2 text-sm leading-snug text-ink/55 sm:text-base">
+              Dòng ngay dưới cho biết bộ lọc hiện khớp bao nhiêu bài.
+            </p>
+          </InfoTip>
+        }
+      >
         <div className="flex items-center justify-center gap-1.5">
           {([1, 2, 3] as Difficulty[]).map((level) => (
             <button

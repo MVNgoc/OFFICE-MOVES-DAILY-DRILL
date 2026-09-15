@@ -5,6 +5,8 @@ import type { Exercise, Filters } from './types'
 import { AREA_LABEL, filterExercises, formatAmount, matchesFilters, pickDuration } from './lib/exercises'
 import { loadJSON, saveJSON } from './lib/storage'
 import { sfx } from './lib/audio'
+import { formatClock } from './hooks/useTimer'
+import { useSession } from './hooks/useSession'
 import { useSpin } from './hooks/useSpin'
 import { useStreak } from './hooks/useStreak'
 
@@ -12,6 +14,7 @@ import { Banner } from './components/Banner'
 import { FilterPanel } from './components/FilterPanel'
 import { Generator } from './components/Generator'
 import { StreakPanel } from './components/StreakPanel'
+import { SessionBar } from './components/SessionBar'
 import { Terminal } from './components/Terminal'
 import { ExerciseDock } from './components/ExerciseDock'
 
@@ -39,6 +42,7 @@ export default function App() {
   const [message, setMessage] = useState<string[]>(IDLE_LINES)
 
   const { streak, doneToday, markDone } = useStreak()
+  const session = useSession(filters.time)
 
   useEffect(() => saveJSON('filters', filters), [filters])
   useEffect(() => {
@@ -84,20 +88,37 @@ export default function App() {
     spin()
   }, [pool, spin])
 
-  const handleTimerFinish = useCallback(() => {
-    setMessage([
-      CHEERS[Math.floor(Math.random() * CHEERS.length)],
-      doneToday ? 'Nhấn [SPIN] để tập thêm một bài nữa.' : 'Đừng quên bấm [ĐÁNH DẤU ĐÃ TẬP] để giữ streak!',
-    ])
-    confetti({
-      particleCount: 70,
-      spread: 75,
-      startVelocity: 38,
-      origin: { y: 0.6 },
-      colors: ['#f5b425', '#4caf50', '#fff8e7', '#c8402f'],
-      disableForReducedMotion: true,
-    })
-  }, [doneToday])
+  const handleTimerFinish = useCallback(
+    (seconds: number, lastSide: boolean) => {
+      const wasDone = session.done
+      session.add(seconds, lastSide)
+      const nowDone = session.elapsed + seconds >= session.target
+
+      if (nowDone && !wasDone) {
+        setMessage([
+          `TRỌN VẸN ${filters.time} PHÚT! Bạn vừa hoàn thành cả buổi tập.`,
+          doneToday ? 'Quá đã. Muốn tập thêm thì cứ [SPIN] tiếp.' : 'Bấm [ĐÁNH DẤU ĐÃ TẬP] để ghi nhận streak hôm nay!',
+        ])
+      } else {
+        const left = Math.max(0, session.target - (session.elapsed + seconds))
+        setMessage([
+          CHEERS[Math.floor(Math.random() * CHEERS.length)],
+          // Same clock format as the session bar, so the two never disagree.
+          `Còn ${formatClock(left)} nữa là trọn buổi ${filters.time} phút. Nhấn [SPIN] để tập tiếp.`,
+        ])
+      }
+
+      confetti({
+        particleCount: nowDone && !wasDone ? 130 : 70,
+        spread: nowDone && !wasDone ? 100 : 75,
+        startVelocity: 38,
+        origin: { y: 0.6 },
+        colors: ['#f5b425', '#4caf50', '#fff8e7', '#c8402f'],
+        disableForReducedMotion: true,
+      })
+    },
+    [doneToday, filters.time, session],
+  )
 
   const handleMarkDone = useCallback(() => {
     if (doneToday) return
@@ -151,6 +172,16 @@ export default function App() {
                 onAmountChange={setAmount}
                 onSpin={handleSpin}
                 onFinish={handleTimerFinish}
+                sessionBar={
+                  <SessionBar
+                    budget={filters.time}
+                    count={session.count}
+                    remaining={session.remaining}
+                    progress={session.progress}
+                    done={session.done}
+                    onReset={session.reset}
+                  />
+                }
               />
             </div>
 

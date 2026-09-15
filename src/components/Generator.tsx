@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react'
 import type { Exercise, TimeBudget } from '../types'
-import { AREA_LABEL, ICON_SRC } from '../lib/exercises'
+import { AREA_LABEL, MASCOT_FRAMES, MASCOT_SEQUENCE, exerciseFrames } from '../lib/exercises'
 import { ExerciseCard } from './ExerciseCard'
-import { Sprite, Stars } from './Pixel'
+import { FrameAnimation, Sprite, Stars } from './Pixel'
 
 interface Props {
   spinning: boolean
@@ -12,7 +13,8 @@ interface Props {
   amount: number
   onAmountChange: (amount: number) => void
   onSpin: () => void
-  onFinish: () => void
+  onFinish: (seconds: number, lastSide: boolean) => void
+  sessionBar: ReactNode
 }
 
 export function Generator({
@@ -25,6 +27,7 @@ export function Generator({
   onAmountChange,
   onSpin,
   onFinish,
+  sessionBar,
 }: Props) {
   const empty = poolSize === 0
 
@@ -36,6 +39,8 @@ export function Generator({
           GENERATOR
         </h2>
       </div>
+
+      {sessionBar}
 
       {/* ---------- SPIN button ---------- */}
       <div className="flex flex-col items-center">
@@ -78,7 +83,7 @@ export function Generator({
               <>
                 <span className="flex h-14 w-20 items-center justify-center sm:h-16 sm:w-24">
                   <Sprite
-                    src={ICON_SRC[reelItem.icon]}
+                    src={exerciseFrames(reelItem)[0]}
                     className="anim-reel h-full w-full object-contain sprite-shadow"
                   />
                 </span>
@@ -101,7 +106,11 @@ export function Generator({
               </>
             ) : (
               <>
-                <Sprite src="/assets/sprites/character.png" className="anim-sway h-16 w-auto sprite-shadow sm:h-20" />
+                <FrameAnimation
+                  frames={MASCOT_FRAMES}
+                  sequence={MASCOT_SEQUENCE}
+                  className="h-[62px] w-[35px] sprite-shadow"
+                />
                 <p className="font-pixel text-[10px] leading-[1.8] text-ink sm:text-xs">EXERCISE PREVIEW</p>
                 <p className="font-vn text-base leading-none text-ink/80 sm:text-lg">XEM TRƯỚC BÀI TẬP</p>
               </>

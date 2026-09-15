@@ -35,7 +35,10 @@ export function useTimer(totalSeconds: number, { onFinish }: Options = {}) {
   useEffect(() => {
     if (!running) return
 
-    let frame = 0
+    // setInterval rather than requestAnimationFrame: rAF is suspended outright
+    // in a hidden tab, so a countdown started before switching away would never
+    // reach zero and the session would never be credited. A throttled interval
+    // still fires, and the deadline maths keeps the reading correct either way.
     const tick = () => {
       const left = Math.max(0, (deadlineRef.current - Date.now()) / 1000)
       const ceil = Math.ceil(left)
@@ -48,17 +51,16 @@ export function useTimer(totalSeconds: number, { onFinish }: Options = {}) {
       }
 
       if (left <= 0) {
+        window.clearInterval(id)
         setRunning(false)
         setRemaining(0)
-        sfx.finish()
         onFinishRef.current?.()
-        return
       }
-      frame = window.requestAnimationFrame(tick)
     }
 
-    frame = window.requestAnimationFrame(tick)
-    return () => window.cancelAnimationFrame(frame)
+    const id = window.setInterval(tick, 200)
+    tick()
+    return () => window.clearInterval(id)
   }, [running])
 
   const start = useCallback(() => {
@@ -88,6 +90,14 @@ export function useTimer(totalSeconds: number, { onFinish }: Options = {}) {
     else start()
   }, [running, start, pause])
 
+  /** Runs the clock again from the top — used to roll straight into side two. */
+  const restart = useCallback(() => {
+    beepedAtRef.current = null
+    deadlineRef.current = Date.now() + totalSeconds * 1000
+    setRemaining(totalSeconds)
+    setRunning(true)
+  }, [totalSeconds])
+
   const reset = useCallback(() => {
     setRunning(false)
     setRemaining(totalSeconds)
@@ -105,6 +115,7 @@ export function useTimer(totalSeconds: number, { onFinish }: Options = {}) {
     pause,
     toggle,
     reset,
+    restart,
   }
 }
 

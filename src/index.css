@@ -300,13 +300,15 @@
   animation: bob 1.6s steps(4, end) infinite;
 }
 
+/* Vertical translation only. Rotating pixel art resamples it onto a tilted
+   grid, which leaves the outline ragged — some blocks 2px wide, some 3px. */
 @keyframes sway {
   0%,
   100% {
-    transform: translateY(0) rotate(-3deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px) rotate(3deg);
+    transform: translateY(-5px);
   }
 }
 

@@ -137,6 +137,13 @@ export const sfx = {
     noise(0.2, 0.25)
   },
 
+  /** One side of a two-sided exercise is done — change sides. */
+  switchSide() {
+    tone({ freq: 784, duration: 0.1, wave: 'square', gain: 0.55 })
+    tone({ freq: 587.33, duration: 0.1, wave: 'square', gain: 0.55, delay: 0.11 })
+    tone({ freq: 784, duration: 0.16, wave: 'square', gain: 0.55, delay: 0.22 })
+  },
+
   /** Daily streak incremented. */
   streakUp() {
     tone({ freq: 523.25, duration: 0.08, gain: 0.55 })
