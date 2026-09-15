@@ -1,0 +1,420 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   OFFICE MOVES: DAILY DRILL — retro pixel-art theme
+   ============================================================ */
+
+@theme {
+  /* Wood panel frame */
+  --color-wood-100: #c98f56;
+  --color-wood-300: #a9713c;
+  --color-wood-500: #8b5a2b;
+  --color-wood-700: #5c3a1e;
+  --color-wood-900: #35210f;
+
+  /* Retro blue screen background */
+  --color-screen-400: #3f6c99;
+  --color-screen-500: #2b4c6f;
+  --color-screen-700: #1d3a57;
+  --color-screen-900: #142538;
+
+  /* Cream display panels */
+  --color-cream-100: #fff8e7;
+  --color-cream-300: #f0e6d2;
+  --color-cream-500: #d9cbb0;
+
+  /* Pixel green (SPIN / confirm) */
+  --color-retro-green-300: #8fbc8f;
+  --color-retro-green-500: #4caf50;
+  --color-retro-green-700: #388e3c;
+  --color-retro-green-900: #1f5d24;
+
+  /* Accents */
+  --color-retro-red: #c8402f;
+  --color-retro-gold: #f5b425;
+  --color-ink: #2a1a10;
+
+  /* Press Start 2P has no Vietnamese glyphs — ASCII display text only. */
+  --font-pixel: 'Press Start 2P', 'Silkscreen', monospace;
+  /* Handjet and VT323 both ship a Vietnamese subset, so accented copy uses them. */
+  --font-vn: 'Handjet', 'Press Start 2P', monospace;
+  --font-screen: 'Silkscreen', 'Press Start 2P', monospace;
+  --font-term: 'VT323', 'Courier New', monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: #1b1206;
+    /* Soft office-wall vignette behind the cabinet. Fixed attachment keeps the
+       vignette centred on the viewport instead of ending one screen down, which
+       otherwise leaves a flat dark band once the page scrolls. */
+    background-image:
+      radial-gradient(ellipse at 50% 22%, #6b4a2a 0%, #3a2613 55%, #1b1206 100%),
+      repeating-linear-gradient(90deg, rgb(0 0 0 / 0.14) 0 2px, transparent 2px 10px);
+    background-attachment: fixed;
+    color: var(--color-cream-100);
+    font-family: var(--font-term);
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    overflow-x: hidden;
+  }
+
+  /* Every raster asset in this app is pixel art. */
+  img {
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+    max-width: 100%;
+  }
+
+  button {
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-retro-gold);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* ---------- Pixel bevels -------------------------------------------------
+     A retro bevel is four hard 1-unit shadows (no blur): light on the top/left,
+     dark on the bottom/right, plus a hard black outline around everything. */
+
+  .pixel-out {
+    border: 0;
+    box-shadow:
+      inset 3px 3px 0 0 var(--bevel-light, rgb(255 255 255 / 0.45)),
+      inset -3px -3px 0 0 var(--bevel-dark, rgb(0 0 0 / 0.35)),
+      0 0 0 3px var(--color-ink);
+  }
+
+  .pixel-in {
+    box-shadow:
+      inset 3px 3px 0 0 var(--bevel-dark, rgb(0 0 0 / 0.35)),
+      inset -3px -3px 0 0 var(--bevel-light, rgb(255 255 255 / 0.45)),
+      0 0 0 3px var(--color-ink);
+  }
+
+  /* Outer arcade cabinet: chunky wood frame with a drop shadow. */
+  .cabinet {
+    background:
+      linear-gradient(180deg, var(--color-wood-300) 0%, var(--color-wood-500) 40%, var(--color-wood-700) 100%);
+    box-shadow:
+      inset 4px 4px 0 0 var(--color-wood-100),
+      inset -4px -4px 0 0 var(--color-wood-900),
+      0 0 0 4px var(--color-ink),
+      0 12px 0 0 rgb(0 0 0 / 0.45),
+      0 0 60px 12px rgb(0 0 0 / 0.55);
+  }
+
+  /* Inner CRT screen. */
+  .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--color-screen-400) 0%, var(--color-screen-500) 45%, var(--color-screen-900) 120%);
+    box-shadow:
+      inset 3px 3px 0 0 rgb(0 0 0 / 0.55),
+      inset -3px -3px 0 0 rgb(255 255 255 / 0.12),
+      0 0 0 4px var(--color-ink);
+  }
+
+  /* Scanline overlay for the CRT. */
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.14) 0px,
+      rgb(0 0 0 / 0.14) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+    z-index: 30;
+  }
+
+  /* Cream readout panel (exercise preview, streak counter, terminal). */
+  .panel-cream {
+    background: linear-gradient(180deg, var(--color-cream-100) 0%, var(--color-cream-300) 100%);
+    color: var(--color-ink);
+    box-shadow:
+      inset 3px 3px 0 0 #ffffff,
+      inset -3px -3px 0 0 var(--color-cream-500),
+      0 0 0 3px var(--color-ink);
+  }
+
+  /* Wood sub-panel used for sidebar section headers. */
+  .panel-wood {
+    background: linear-gradient(180deg, var(--color-wood-300) 0%, var(--color-wood-500) 100%);
+    box-shadow:
+      inset 2px 2px 0 0 var(--color-wood-100),
+      inset -2px -2px 0 0 var(--color-wood-900),
+      0 0 0 3px var(--color-ink);
+  }
+
+  /* Small chunky button (time tabs, area icons, timer controls). */
+  .pixel-btn {
+    position: relative;
+    background: linear-gradient(180deg, var(--color-cream-100) 0%, var(--color-cream-300) 100%);
+    color: var(--color-ink);
+    box-shadow:
+      inset 2px 2px 0 0 #ffffff,
+      inset -2px -2px 0 0 var(--color-cream-500),
+      0 0 0 3px var(--color-ink),
+      0 4px 0 0 rgb(0 0 0 / 0.4);
+    transition:
+      transform 80ms steps(2),
+      box-shadow 80ms steps(2),
+      filter 120ms;
+  }
+
+  .pixel-btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .pixel-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow:
+      inset 2px 2px 0 0 var(--color-cream-500),
+      inset -2px -2px 0 0 #ffffff,
+      0 0 0 3px var(--color-ink);
+  }
+
+  .pixel-btn:disabled {
+    filter: grayscale(0.7) brightness(0.85);
+    opacity: 0.65;
+  }
+
+  /* Selected state for filter buttons. */
+  .pixel-btn[data-active='true'] {
+    background: linear-gradient(180deg, var(--color-retro-green-300) 0%, var(--color-retro-green-700) 100%);
+    color: var(--color-cream-100);
+    box-shadow:
+      inset 2px 2px 0 0 rgb(255 255 255 / 0.5),
+      inset -2px -2px 0 0 var(--color-retro-green-900),
+      0 0 0 3px var(--color-ink),
+      0 4px 0 0 rgb(0 0 0 / 0.4);
+  }
+
+  .pixel-btn--green {
+    background: linear-gradient(180deg, var(--color-retro-green-500) 0%, var(--color-retro-green-700) 100%);
+    color: var(--color-cream-100);
+    box-shadow:
+      inset 2px 2px 0 0 rgb(255 255 255 / 0.45),
+      inset -2px -2px 0 0 var(--color-retro-green-900),
+      0 0 0 3px var(--color-ink),
+      0 4px 0 0 rgb(0 0 0 / 0.4);
+  }
+
+  .pixel-btn--red {
+    background: linear-gradient(180deg, #e0573f 0%, var(--color-retro-red) 100%);
+    color: var(--color-cream-100);
+    box-shadow:
+      inset 2px 2px 0 0 rgb(255 255 255 / 0.4),
+      inset -2px -2px 0 0 #7d2418,
+      0 0 0 3px var(--color-ink),
+      0 4px 0 0 rgb(0 0 0 / 0.4);
+  }
+
+  /* Pixel text shadow — hard offset, no blur. */
+  .text-pixel-shadow {
+    text-shadow:
+      2px 2px 0 var(--color-ink),
+      4px 4px 0 rgb(0 0 0 / 0.35);
+  }
+
+  .text-pixel-shadow-sm {
+    text-shadow: 2px 2px 0 var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .font-pixel {
+    font-family: var(--font-pixel);
+  }
+  /* Pixel display face for Vietnamese copy. Heavy weight + tight tracking keeps
+     it in the same visual family as Press Start 2P. */
+  .font-vn {
+    font-family: var(--font-vn);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .font-screen {
+    font-family: var(--font-screen);
+  }
+  .font-term {
+    font-family: var(--font-term);
+  }
+
+  /* Pixel-art drop shadow that follows the sprite silhouette. */
+  .sprite-shadow {
+    filter: drop-shadow(3px 3px 0 rgb(0 0 0 / 0.45));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Stepped so the sprite never lands on a half-pixel. */
+.anim-bob {
+  animation: bob 1.6s steps(4, end) infinite;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(3deg);
+  }
+}
+
+.anim-sway {
+  animation: sway 2s steps(6, end) infinite;
+}
+
+@keyframes arrow-point {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.anim-arrow {
+  animation: arrow-point 0.9s steps(3, end) infinite;
+}
+
+@keyframes reel-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.anim-reel {
+  animation: reel-flicker 0.12s steps(2, end) infinite;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.anim-pop {
+  animation: pop-in 260ms steps(6, end) both;
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.anim-caret {
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.anim-shake {
+  animation: shake 0.3s steps(2, end) 2;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+}
+
+.anim-glow {
+  animation: glow-pulse 1.2s steps(4, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-bob,
+  .anim-sway,
+  .anim-arrow,
+  .anim-reel,
+  .anim-pop,
+  .anim-shake,
+  .anim-glow {
+    animation: none !important;
+  }
+}
