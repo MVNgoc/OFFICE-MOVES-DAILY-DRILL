@@ -50,6 +50,10 @@ export function ExerciseCard({ exercise, time, amount, onAmountChange, onFinish 
         <p className="font-vn text-xs leading-none tracking-widest text-ink/50 sm:text-sm">CÁCH TẬP</p>
         <p className="font-term mt-1.5 text-lg leading-snug text-ink sm:text-xl">{exercise.description}</p>
         <p className="font-term mt-2 border-t-2 border-dashed border-ink/20 pt-1.5 text-base leading-snug text-ink/70 sm:text-lg">
+          <span aria-hidden="true">💪 </span>
+          <b>Công dụng:</b> {exercise.benefits}
+        </p>
+        <p className="font-term mt-1.5 text-base leading-snug text-ink/70 sm:text-lg">
           <span aria-hidden="true">💡 </span>
           {exercise.tips}
         </p>

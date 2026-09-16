@@ -367,7 +367,10 @@
 }
 
 .anim-pop {
-  animation: pop-in 260ms steps(6, end) both;
+  /* `backwards`, not `both`: a forwards fill would leave the transform applied
+     for good, and that lingering transform makes the card a stacking context
+     that traps the info popover under the scanlines and the terminal panel. */
+  animation: pop-in 260ms steps(6, end) backwards;
 }
 
 @keyframes caret-blink {

@@ -18,6 +18,8 @@ export interface Exercise {
   /** The amount applies to each side separately (side plank, most stretches). */
   perSide?: boolean
   description: string
+  /** What the exercise does for you — shown under the instructions. */
+  benefits: string
   tips: string
 }
 

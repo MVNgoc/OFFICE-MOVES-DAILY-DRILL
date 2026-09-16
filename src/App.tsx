@@ -52,6 +52,14 @@ export default function App() {
 
   const pool = useMemo(() => filterExercises(filters), [filters])
 
+  // Exercises already finished in this session are off the reel until the
+  // clock for that session runs out. If the filters leave nothing new, the
+  // whole pool comes back rather than blocking the spin.
+  const { spinPool, exhausted } = useMemo(() => {
+    const fresh = pool.filter((exercise) => !session.doneIds.includes(exercise.id))
+    return { spinPool: fresh.length > 0 ? fresh : pool, exhausted: fresh.length === 0 && pool.length > 0 }
+  }, [pool, session.doneIds])
+
   const handleSettle = useCallback(
     (exercise: Exercise) => {
       const next = pickDuration(exercise, filters.time)
@@ -64,7 +72,7 @@ export default function App() {
     [filters.time],
   )
 
-  const { result, reelItem, spinning, spin, clear } = useSpin(pool, handleSettle)
+  const { result, reelItem, spinning, spin, clear } = useSpin(spinPool, handleSettle)
 
   const handleFiltersChange = useCallback(
     (next: Filters) => {
@@ -84,14 +92,17 @@ export default function App() {
       sfx.error()
       return
     }
-    setMessage(['Đang quay máy chọn bài tập...', 'Chuẩn bị tinh thần nào!'])
+    setMessage([
+      'Đang quay máy chọn bài tập...',
+      exhausted ? 'Đã tập hết bài trong bộ lọc — bắt đầu vòng mới!' : 'Chuẩn bị tinh thần nào!',
+    ])
     spin()
-  }, [pool, spin])
+  }, [pool, exhausted, spin])
 
   const handleTimerFinish = useCallback(
     (seconds: number, lastSide: boolean) => {
       const wasDone = session.done
-      session.add(seconds, lastSide)
+      session.add(seconds, lastSide, result?.id)
       const nowDone = session.elapsed + seconds >= session.target
 
       if (nowDone && !wasDone) {
@@ -117,7 +128,7 @@ export default function App() {
         disableForReducedMotion: true,
       })
     },
-    [doneToday, filters.time, session],
+    [doneToday, filters.time, result, session],
   )
 
   const handleMarkDone = useCallback(() => {
