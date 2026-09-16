@@ -39,6 +39,7 @@ export function Section({
   info,
   children,
   className = '',
+  dataTour,
 }: {
   title: string
   icon?: ReactNode
@@ -46,9 +47,11 @@ export function Section({
   info?: ReactNode
   children: ReactNode
   className?: string
+  /** Marks this section as a stop on the guided tour. */
+  dataTour?: string
 }) {
   return (
-    <section className={`flex flex-col ${className}`}>
+    <section className={`flex flex-col ${className}`} data-tour={dataTour}>
       <header className="panel-wood flex items-center gap-2 px-2 py-1.5 sm:px-3 sm:py-2">
         {icon}
         <h2 className="font-vn text-sm leading-none tracking-wide text-cream-100 text-pixel-shadow-sm sm:text-base">

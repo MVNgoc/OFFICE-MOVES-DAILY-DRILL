@@ -17,6 +17,7 @@ import { StreakPanel } from './components/StreakPanel'
 import { SessionBar } from './components/SessionBar'
 import { Terminal } from './components/Terminal'
 import { ExerciseDock } from './components/ExerciseDock'
+import { Tour } from './components/Tour'
 
 const DEFAULT_FILTERS: Filters = { time: 5, areas: [], maxDifficulty: 2 }
 
@@ -38,6 +39,9 @@ export default function App() {
     ...loadJSON<Partial<Filters>>('filters', {}),
   }))
   const [muted, setMuted] = useState(() => loadJSON<boolean>('muted', false))
+  // First-time visitors are walked through the cabinet once; after that the
+  // tour only runs when they ask for it from the [?] button.
+  const [tourOpen, setTourOpen] = useState(() => !loadJSON<boolean>('tour-seen', false))
   const [amount, setAmount] = useState(30)
   const [message, setMessage] = useState<string[]>(IDLE_LINES)
 
@@ -146,6 +150,16 @@ export default function App() {
     })
   }, [doneToday, markDone])
 
+  const closeTour = useCallback(() => {
+    setTourOpen(false)
+    saveJSON('tour-seen', true)
+  }, [])
+
+  const openTour = useCallback(() => {
+    sfx.click()
+    setTourOpen(true)
+  }, [])
+
   // Spacebar spins, like an arcade cabinet.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -164,7 +178,7 @@ export default function App() {
       {/* ---------- The arcade cabinet ---------- */}
       <main className="cabinet w-full max-w-[1180px] p-2 sm:p-4 md:p-5">
         <div className="screen scanlines relative flex flex-col gap-2.5 p-2 sm:gap-3 sm:p-3 md:p-4">
-          <Banner muted={muted} onToggleMute={() => setMuted((m) => !m)} />
+          <Banner muted={muted} onToggleMute={() => setMuted((m) => !m)} onStartTour={openTour} />
 
           {/* 3-column layout on desktop, stacked on mobile */}
           <div className="grid grid-cols-1 gap-2.5 sm:gap-3 lg:grid-cols-[minmax(170px,210px)_minmax(0,1fr)_minmax(150px,190px)]">
@@ -196,25 +210,35 @@ export default function App() {
               />
             </div>
 
-            <div className="order-3">
+            <div className="order-3" data-tour="streak">
               <StreakPanel streak={streak} doneToday={doneToday} onMarkDone={handleMarkDone} />
             </div>
           </div>
 
-          <div className="order-4">
+          <div className="order-4" data-tour="terminal">
             <Terminal lines={message} />
           </div>
         </div>
 
         {/* ---------- Bottom dock, on the cabinet wood ---------- */}
-        <div className="pt-3 pb-1 sm:pt-4">
+        <div className="pt-3 pb-1 sm:pt-4" data-tour="dock">
           <ExerciseDock active={result} spinning={spinning} />
         </div>
       </main>
 
       <p className="font-term mt-4 text-center text-sm leading-snug text-cream-300/50 sm:text-base">
-        Mẹo: nhấn phím [SPACE] để quay · Dữ liệu streak lưu ngay trên máy bạn
+        Mẹo: nhấn phím [SPACE] để quay ·{' '}
+        <button
+          type="button"
+          onClick={openTour}
+          className="underline decoration-dotted underline-offset-2 hover:text-cream-100"
+        >
+          xem hướng dẫn
+        </button>{' '}
+        · Dữ liệu streak lưu ngay trên máy bạn
       </p>
+
+      <Tour open={tourOpen} onClose={closeTour} />
     </div>
   )
 }

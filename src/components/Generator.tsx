@@ -40,7 +40,7 @@ export function Generator({
         </h2>
       </div>
 
-      {sessionBar}
+      <div data-tour="session">{sessionBar}</div>
 
       {/* ---------- SPIN button ---------- */}
       <div className="flex flex-col items-center">
@@ -48,6 +48,7 @@ export function Generator({
           type="button"
           onClick={onSpin}
           disabled={spinning || empty}
+          data-tour="spin"
           aria-label={spinning ? 'Đang quay' : 'Quay chọn bài tập ngẫu nhiên'}
           className="group relative block transition-transform duration-75 ease-out not-disabled:hover:scale-105 not-disabled:active:translate-y-1 not-disabled:active:scale-95 disabled:cursor-not-allowed"
         >
@@ -68,6 +69,7 @@ export function Generator({
       </div>
 
       {/* ---------- Display: preview / reel / exercise card ---------- */}
+      <div data-tour="display">
       {result && !spinning ? (
         <ExerciseCard
           exercise={result}
@@ -128,6 +130,7 @@ export function Generator({
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

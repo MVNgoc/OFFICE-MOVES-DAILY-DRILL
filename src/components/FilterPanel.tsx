@@ -35,7 +35,7 @@ export function FilterPanel({ filters, onChange, matchCount }: Props) {
   return (
     <div className="flex flex-col gap-3">
       {/* ---------- Session length ---------- */}
-      <Section title="CÀI ĐẶT" icon={<span aria-hidden="true">🕐</span>}>
+      <Section title="CÀI ĐẶT" icon={<span aria-hidden="true">🕐</span>} dataTour="filters-time">
         <p className="font-term text-base leading-none text-ink/70">THỜI GIAN</p>
         <div className="mt-2 grid grid-cols-3 gap-1.5">
           {TIME_BUDGETS.map((time) => (
@@ -54,7 +54,7 @@ export function FilterPanel({ filters, onChange, matchCount }: Props) {
       </Section>
 
       {/* ---------- Target area ---------- */}
-      <Section title="KHU VỰC" icon={<span aria-hidden="true">📍</span>}>
+      <Section title="KHU VỰC" icon={<span aria-hidden="true">📍</span>} dataTour="filters-area">
         <div className="grid grid-cols-2 gap-1.5">
           {AREAS.map((area, index) => {
             const active = filters.areas.includes(area.key)
@@ -93,6 +93,7 @@ export function FilterPanel({ filters, onChange, matchCount }: Props) {
       <Section
         title="ĐỘ KHÓ"
         icon={<span aria-hidden="true">⭐</span>}
+        dataTour="filters-difficulty"
         info={
           <InfoTip label="Độ khó nghĩa là gì?">
             <p className="font-vn text-xs leading-none tracking-widest text-ink/60 sm:text-sm">ĐỘ KHÓ LÀ GÌ?</p>

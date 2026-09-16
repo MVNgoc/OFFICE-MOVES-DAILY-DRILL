@@ -35,13 +35,14 @@ src/
     exercises.ts          Lọc, chọn ngẫu nhiên, ánh xạ sprite, thời lượng gợi ý
     audio.ts              Hiệu ứng âm thanh chiptune (Web Audio API)
     storage.ts            Bọc localStorage an toàn + tiện ích ngày
+    tour.ts               Kịch bản 12 bước của vòng hướng dẫn
   hooks/
     useSpin.ts            Vòng quay gacha với nhịp ease-out
     useTimer.ts           Đếm ngược theo deadline (đúng cả khi tab chạy nền)
     useStreak.ts          Streak theo ngày, tự reset khi bỏ lỡ
     useSession.ts         Tiến độ buổi tập, cộng dồn theo giây đã tập xong
   components/
-    Banner.tsx            Tiêu đề + công tắc âm thanh
+    Banner.tsx            Tiêu đề + nút hướng dẫn [?] + công tắc âm thanh
     FilterPanel.tsx       THỜI GIAN / KHU VỰC / ĐỘ KHÓ
     Generator.tsx         Nút SPIN, màn hình quay, khung kết quả
     ExerciseCard.tsx      Chi tiết bài tập + chọn khối lượng
@@ -49,6 +50,7 @@ src/
     StreakPanel.tsx       Bộ đếm streak, mascot, nút đánh dấu
     Terminal.tsx          Hộp thoại kiểu RPG (gõ từng ký tự)
     ExerciseDock.tsx      Dãy icon bài tập dưới cùng
+    Tour.tsx              Vòng hướng dẫn: khoét sáng từng khu vực + chú thích
     Pixel.tsx             Sprite / Section / Stars dùng chung
 ```
 
@@ -227,6 +229,10 @@ Mọi ảnh đều render với `image-rendering: pixelated` và scale bằng b�
   bài** — bỏ dở giữa chừng thì vẫn được ghi nhận phần đã làm.
 - **Streak** — lưu `localStorage`, nối tiếp nếu tập hôm qua, reset nếu bỏ lỡ.
 - **Âm thanh** — toàn bộ SFX tổng hợp bằng oscillator, bật/tắt bằng nút `SFX`.
+- **Vòng hướng dẫn** — tự chạy ở lần mở đầu tiên, dẫn qua 12 điểm của giao
+  diện: nền tối lại, khu vực đang nói tới được khoét sáng viền vàng. Xem lại bất
+  cứ lúc nào bằng nút `[?]` trên banner hoặc link dưới chân trang. Điều khiển
+  bằng chuột hoặc phím `←` `→` `Esc`.
 - **Bàn phím** — `[SPACE]` để quay.
 - **Responsive** — 3 cột trên desktop, xếp dọc trên mobile (generator lên đầu).
 - **Ảnh riêng cho từng bài** — cả 28 bài đều có bộ ảnh của riêng mình, tra theo
@@ -239,7 +245,8 @@ Mọi ảnh đều render với `image-rendering: pixelated` và scale bằng b�
 
 ### Dữ liệu lưu trên máy
 
-`localStorage` dưới tiền tố `office-moves:` — `streak`, `filters`, `muted`.
+`localStorage` dưới tiền tố `office-moves:` — `streak`, `filters`, `muted`,
+`tour-seen`.
 Không có backend, không gửi dữ liệu đi đâu.
 
 ## Ghi chú kỹ thuật
