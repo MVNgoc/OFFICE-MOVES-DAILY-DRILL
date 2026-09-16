@@ -56,10 +56,16 @@ src/
 
 Sprite gốc nằm ở `assets-src/`, chia làm nhiều đợt:
 
-**Đợt 1 — `area-sheet`, `character-asset`, `exercise-icon-row`, `spin-button-asset`,
-`star-sheet`** (1408×768, canvas gốc **120×65**). Nền ca-rô bị *vẽ chết* vào ảnh
-chứ không phải alpha thật, nên phải tách bằng chroma/độ sáng. Riêng nút SPIN phải
-flood fill từ viền vì chữ kem trùng đúng màu ô ca-rô sáng.
+**Đợt 1 — `spin-button-asset`, `star-sheet`** (1408×768, canvas gốc **120×65**).
+Nền ca-rô bị *vẽ chết* vào ảnh chứ không phải alpha thật, nên phải tách bằng
+chroma/độ sáng. Riêng nút SPIN phải flood fill từ viền vì chữ kem trùng đúng màu
+ô ca-rô sáng.
+
+Đợt này còn có `area-sheet`, `character-asset` và `exercise-icon-row`, nhưng cả
+ba đã bị thay thế và **xoá hẳn** — cả sheet gốc lẫn bản tách nền trong
+`public/assets/`. Icon khu vực hiện cắt từ hàng 2 của `main-model.png` (đợt 2),
+mascot áo xanh cắt từ `main-model-idle.png` (đợt 4, bản đợt 1 mặc áo nâu), còn
+icon bài tập dùng chung đã nhường chỗ cho ảnh riêng từng bài ở đợt 5.
 
 **Đợt 2 — `main-model.png`** (1408×768, canvas gốc **240×131** — gấp đôi đợt 1).
 Nền magenta đặc `#FF00FF` nên tách một bước là sạch. Sheet này có kèm chữ nhãn
@@ -158,15 +164,38 @@ cả ảnh nền. Cách xử lý: lọc bỏ các thành phần liên thông nh�
 sprite), hoặc vá lại theo median từng hàng để giữ đúng dải chuyển sắc dọc (với
 ảnh nền).
 
+**Đợt 8 — `favicon.png`** (1408×768, canvas gốc **60×33**). Ảnh riêng cho icon
+tab: mascot giơ hai tay ăn mừng, thay cho bản cắt từ sprite đi bộ ở đợt 4.
+
+Ảnh này lặp lại đúng hai cái bẫy của đợt 1: nền ca-rô **vẽ chết** vào ảnh chứ
+không phải alpha thật (toàn ảnh alpha = 255), và một vệt ✦ ở góc dưới phải. Nền
+tách bằng flood fill từ viền theo điều kiện xám-và-sáng, vệt ✦ rụng theo cách cũ
+— bỏ thành phần liên thông rời rạc.
+
+Lưới pixel gốc phải dò chứ không đoán được: quét mọi canvas 40–240 rồi chấm theo
+độ đồng nhất trong từng ô cho ra 240×131, nhưng ở mức đó **91.9% ô 2×2 vẫn đồng
+màu** nên hạ tiếp hai lần còn 60×33 mới là lưới thật.
+
+Đầu mascot rộng 32px ở không gian 120×65 (tức 16px thật), nên favicon cắt đúng
+khung 32×32 quanh đầu — **không còn phần vai áo xanh** như bản trước. Vai không
+nhét vừa: đầu + vai trải 60×44, ép xuống 32×32 thì tỉ lệ lẻ và nét mặt vỡ. Đổi
+lại, mặt to gấp đôi bản cũ nên ở 16px vẫn rõ mắt và miệng.
+
 Kết quả trong `public/assets/`:
 
 - `sprites/` — 70 sprite riêng lẻ: **28 bài tập × 2 khung**, mascot × 3 khung,
   nhân vật banner × 2 khung, 5 icon khu vực, nút SPIN, mũi tên, 2 sao
-- `area-sheet.png`, `star-sheet.png`, `spin-button.png`, `exercise-icon-row.png`,
-  `character-asset.png` — bản tách nền của các sheet đợt 1 (giữ để tham chiếu)
+- `star-sheet.png`, `spin-button.png` — bản tách nền của các sheet đợt 1 (giữ để
+  tham chiếu)
 - `bg-office.png` — tranh nền phòng làm việc 480×268, gắn vào `body` bằng
   `background-size: cover` + `image-rendering: pixelated`
 - `ui-mockup.png` — ảnh giao diện tham chiếu
+- `../favicon-32.png` / `../favicon-64.png` (ở gốc `public/`) — icon tab, cắt
+  phần đầu mascot từ ảnh riêng ở đợt 8, **nền trong suốt** nên không thành ô
+  vuông đặc trên thanh tab. Sprite nguyên người không dùng được vì trình duyệt
+  bóp nó cho vừa ô vuông, và ở 16px thì cả người chỉ còn là một vệt mờ. Canvas
+  32×32 (bản 64 phóng ×2 nearest) để trình duyệt hạ xuống 16px bằng phép chia
+  đôi chẵn
 
 Mọi ảnh đều render với `image-rendering: pixelated` và scale bằng bội số nguyên.
 
